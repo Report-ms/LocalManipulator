@@ -1,7 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace LocalManipulator.Models
 {
+    public class GetTokenModelResult
+    {
+        public int Result { get; set; }
+        public TokenModel Data { get; set; }
+    }
     public class TokenModel
     {
         public string AccessToken { get; set; }

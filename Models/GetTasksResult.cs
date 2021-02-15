@@ -10,8 +10,8 @@ namespace LocalManipulator.Models
     internal class TaskForRobot
     {
         public string Id { get; set; }
-        public string State { get; set; }
-        public string Code { get; set; }
+        public string Condition { get; set; }
+        public string Codetoexecute { get; set; }
         public string Result { get; set; }
     }
 }
