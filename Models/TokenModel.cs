@@ -3,6 +3,17 @@ using System.Collections.Generic;
 
 namespace LocalManipulator.Models
 {
+    public class AppConfig
+    {
+        public IEnumerable<AppConfigView> Views { get; set; }
+    }
+
+    public class AppConfigView
+    {
+        public string ViewName { get; set; }
+        public string DictionaryStrictName { get; set; }
+    }
+
     public class GetTokenModelResult
     {
         public int Result { get; set; }

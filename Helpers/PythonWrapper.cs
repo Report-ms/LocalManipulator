@@ -6,16 +6,25 @@ namespace LocalManipulator.Helpers
 {
     internal class PythonWrapper
     {
-        public static string Run(string code)
+        public string PythonLocation { get; set; }
+        public string TempFolder { get; set; }
+
+        public PythonWrapper(Settings settings)
         {
-            var fileName = @"C:\temp\" + Guid.NewGuid().ToString()  + ".py";
+            PythonLocation = settings.PythonLocation;
+            TempFolder = settings.TempFolder;
+        }
+
+        public string Run(string code)
+        {
+            var fileName = $"{TempFolder}/{Guid.NewGuid()}.py";
             var streamWriter = File.CreateText(fileName);
             streamWriter.Write(code);
             streamWriter.Close();
 
             var p = new Process
             {
-                StartInfo = new ProcessStartInfo(@"C:\Python38\python.exe", fileName)
+                StartInfo = new ProcessStartInfo(PythonLocation, fileName)
                 {
                     RedirectStandardOutput = true, 
                     UseShellExecute = false, 
@@ -27,7 +36,7 @@ namespace LocalManipulator.Helpers
             string output = p.StandardOutput.ReadToEnd();
             p.WaitForExit();
 
-            Console.WriteLine(output);
+            Console.WriteLine($"{DateTime.UtcNow}: {output}");
             
             return output;
         }

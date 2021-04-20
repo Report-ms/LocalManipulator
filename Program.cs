@@ -1,33 +1,38 @@
 ﻿using System;
-using System.Security.Authentication;
+using System.IO;
+using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using LocalManipulator.Helpers;
-using LocalManipulator.Models;
 
 namespace LocalManipulator
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            if(args.Length != 3)
-                throw new ArgumentException("Parameters Url, User, Password is required!");
-            
-            var url = args[0];
-            var user = args[1];
-            var password = args[2];
-
-            using (var app = new ClusterManagementAppConnector(url, user, password))
+            var settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
+            var pythonWrapper = new PythonWrapper(settings);
+            using (var app = new ClusterManagementAppConnector(settings))
             {
                 while (true)
                 {
                     var tasks = app.GetTasks();
                     foreach (var task in tasks)
                     {
-                        var result = PythonWrapper.Run(task.Codetoexecute);
-                        app.SaveResult(task, result);
+                        app.SetRunning(task);
+                        try
+                        {
+                            var result = pythonWrapper.Run(task.Code);
+                            app.SaveResult(task, result);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            app.SetError(task, e);
+                        }
                     }
-                    Thread.Sleep(10000);
+                    Thread.Sleep(1000);
                 }
             }
         }
