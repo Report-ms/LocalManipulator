@@ -17,20 +17,20 @@ namespace LocalManipulator
             {
                 while (true)
                 {
-                    var tasks = app.GetTasks();
-                    foreach (var task in tasks)
+                    try
                     {
-                        app.SetRunning(task);
-                        try
+                        var tasks = app.GetTasks();
+                        foreach (var task in tasks)
                         {
+                            app.SetRunning(task);
                             var result = pythonWrapper.Run(task.Code);
                             app.SaveResult(task, result);
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                            app.SetError(task, e);
-                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                        //app.SetError(task, e);
                     }
                     Thread.Sleep(1000);
                 }
