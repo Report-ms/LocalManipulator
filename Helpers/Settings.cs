@@ -1,6 +1,6 @@
 ﻿namespace LocalManipulator.Helpers
 {
-    internal class Settings
+    public class Settings
     {
         public string PythonLocation { get; set; }
         public string TempFolder { get; set; }

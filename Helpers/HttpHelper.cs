@@ -11,7 +11,7 @@ using LocalManipulator.Models;
 
 namespace LocalManipulator.Helpers
 {
-    internal class ClusterManagementAppConnector : IDisposable
+    public class ClusterManagementAppConnector : IDisposable
     {
         private string _token;
         private string _baseUrl;
@@ -23,9 +23,8 @@ namespace LocalManipulator.Helpers
         {
             var uri = new Uri(settings.TasksUrl);
             AppUrl = settings.TasksUrl.Replace(uri.AbsolutePath, "");
-            _viewName  = uri.PathAndQuery.Split("View")[1];
-            
-            
+            _viewName  = uri.PathAndQuery.Split("/getListForView/")[1];
+
             _token = Get<GetTokenModelResult>($"{AppUrl}/api/identity/getToken?login={settings.UserName}&password={settings.UserPassword}").Data.AccessToken;
             TaskDictionary = Get<AppConfig>(_token, $"{AppUrl}/api/configuration")
                 .Views
@@ -50,8 +49,8 @@ namespace LocalManipulator.Helpers
         }
         public static T Get<T>(string token, string url)
         {
-            Console.WriteLine($"{DateTime.UtcNow}: {url}");
-            Console.WriteLine($"{DateTime.UtcNow}: {token}");
+            //Console.WriteLine($"{DateTime.UtcNow}: {url}");
+            //Console.WriteLine($"{DateTime.UtcNow}: {token}");
             var webRequest = HttpWebRequest.Create(url);
             webRequest.Headers.Add("Authorization", "Bearer " + token);
             
@@ -71,8 +70,8 @@ namespace LocalManipulator.Helpers
 
         public static string Post<T>(string token, string url, T obj)
         {
-            Console.WriteLine($"{DateTime.UtcNow}: {url}");
-            Console.WriteLine($"{DateTime.UtcNow}: {token}");
+            //Console.WriteLine($"{DateTime.UtcNow}: {url}");
+            //Console.WriteLine($"{DateTime.UtcNow}: {token}");
             var webRequest = HttpWebRequest.Create(url);
             webRequest.Headers.Add("Authorization", "Bearer " + token);
             webRequest.Method = "POST";
@@ -93,7 +92,7 @@ namespace LocalManipulator.Helpers
                 // Read the content.
                 string responseFromServer = reader.ReadToEnd();
                 // Display the content.
-                Console.WriteLine($"{DateTime.UtcNow}: {responseFromServer}");
+                //Console.WriteLine($"{DateTime.UtcNow}: {responseFromServer}");
             }
             
             return serialize;
@@ -114,8 +113,8 @@ namespace LocalManipulator.Helpers
 
         public IEnumerable<TaskForRobot> GetTasks()
         {
-            var tasks = Get<IEnumerable<TaskForRobot>>(_token, $"{_baseUrl}/getListForView/{_viewName}");
-            return tasks;
+            var tasks = Get<GetItemsOf<TaskForRobot>>(_token, $"{_baseUrl}/getListForView/{_viewName}/0/30");
+            return tasks.Rows;
         }
 
         public void SetRunning(TaskForRobot task)

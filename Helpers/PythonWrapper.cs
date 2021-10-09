@@ -32,11 +32,12 @@ namespace LocalManipulator.Helpers
                 }
             };
             p.Start();
-
-            string output = p.StandardOutput.ReadToEnd();
+            
             p.WaitForExit();
+            string output = p.StandardOutput.ReadToEnd();
 
-            Console.WriteLine($"{DateTime.UtcNow}: {output}");
+            Console.WriteLine($"{DateTime.UtcNow} [code]: {code}");
+            Console.WriteLine($"{DateTime.UtcNow} [output]: {output}");
             
             return output;
         }
