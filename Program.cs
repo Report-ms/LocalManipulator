@@ -38,8 +38,8 @@ namespace LocalManipulator
                         foreach (var task in tasks)
                         {
                             lastTask = task;
-                            new Thread(ThreadWork.DoWork)
-                                .Start(new Context(settings, app, task));
+                            ThreadWork.DoWork(new Context(settings, app, task));
+                            //new Thread(ThreadWork.DoWork).Start(new Context(settings, app, task));
                         }
                     }
                     catch (Exception e)
