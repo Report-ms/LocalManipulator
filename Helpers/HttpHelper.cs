@@ -25,6 +25,7 @@ namespace LocalManipulator.Helpers
             AppUrl = settings.TasksUrl.Replace(uri.AbsolutePath, "");
             _viewName  = uri.PathAndQuery.Split("/getListForView/")[1];
 
+            Console.WriteLine($"{AppUrl}/api/identity/getToken?login={settings.UserName}&password={settings.UserPassword}");
             _token = Get<GetTokenModelResult>($"{AppUrl}/api/identity/getToken?login={settings.UserName}&password={settings.UserPassword}").Data.AccessToken;
             TaskDictionary = Get<AppConfig>(_token, $"{AppUrl}/api/configuration")
                 .Views
@@ -62,7 +63,7 @@ namespace LocalManipulator.Helpers
                 // Read the content.
                 string responseFromServer = reader.ReadToEnd();
                 // Display the content.
-                Console.WriteLine(responseFromServer);
+                Console.WriteLine($"{DateTime.UtcNow} {responseFromServer}");
                 var deserialize = JsonSerializer.Deserialize<T>(responseFromServer, new JsonSerializerOptions(JsonSerializerDefaults.Web));
                 return deserialize;
             }

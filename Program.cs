@@ -27,6 +27,7 @@ namespace LocalManipulator
         static void Main()
         {
             var settings = JsonSerializer.Deserialize<Settings>(File.ReadAllText("appsettings.json"));
+            TaskForRobot lastTask = null;
             using (var app = new ClusterManagementAppConnector(settings))
             {
                 while (true)
@@ -36,6 +37,7 @@ namespace LocalManipulator
                         var tasks = app.GetTasks();
                         foreach (var task in tasks)
                         {
+                            lastTask = task;
                             new Thread(ThreadWork.DoWork)
                                 .Start(new Context(settings, app, task));
                         }
@@ -43,7 +45,8 @@ namespace LocalManipulator
                     catch (Exception e)
                     {
                         Console.WriteLine(e);
-                        //app.SetError(task, e);
+                        if(lastTask != null)
+                            app.SetError(lastTask, e);
                     }
                     Thread.Sleep(1000);
                 }
