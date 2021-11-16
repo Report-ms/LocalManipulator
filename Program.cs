@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,7 +17,7 @@ namespace LocalManipulator
             var task = ((Context)context).Task;
             var settings = ((Context)context).Settings;
             var pythonWrapper = new PythonWrapper(settings);
-            app.SetRunning(task);
+
             var result = pythonWrapper.Run(task.Code);
             app.SaveResult(task, result);
         }
@@ -34,12 +35,13 @@ namespace LocalManipulator
                 {
                     try
                     {
-                        var tasks = app.GetTasks();
+                        var tasks = app.GetTasks().Where(x=>x.State == "Created");
+                        foreach (var task in tasks) 
+                            app.SetRunning(task);
                         foreach (var task in tasks)
                         {
+                            new Thread(ThreadWork.DoWork).Start(new Context(settings, app, task));
                             lastTask = task;
-                            ThreadWork.DoWork(new Context(settings, app, task));
-                            //new Thread(ThreadWork.DoWork).Start(new Context(settings, app, task));
                         }
                     }
                     catch (Exception e)
