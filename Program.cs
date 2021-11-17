@@ -48,7 +48,14 @@ namespace LocalManipulator
                     {
                         Console.WriteLine(e);
                         if(lastTask != null)
-                            app.SetError(lastTask, e);
+                            try
+                            {
+                                app.SetError(lastTask, e);
+                            }
+                            catch (Exception exception)
+                            {
+                                Console.WriteLine("Error on set error");
+                            }
                     }
                     Thread.Sleep(1000);
                 }
