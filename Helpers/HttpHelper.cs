@@ -14,25 +14,36 @@ namespace LocalManipulator.Helpers
     public class ClusterManagementAppConnector : IDisposable
     {
         private string _token;
+        private DateTime LastTokenRefresh { get; set; }
         private string _baseUrl;
         private string _viewName;
+        private Settings settings;
         private static string TaskDictionary = "Tasks";
         private string AppUrl { get; }
 
+
         public ClusterManagementAppConnector(Settings settings)
         {
+            this.settings = settings;
             var uri = new Uri(settings.TasksUrl);
             AppUrl = settings.TasksUrl.Replace(uri.AbsolutePath, "");
             _viewName  = uri.PathAndQuery.Split("/getListForView/")[1];
 
-            Console.WriteLine($"{AppUrl}/api/identity/getToken?login={settings.UserName}&password={settings.UserPassword}");
-            _token = Get<GetTokenModelResult>($"{AppUrl}/api/identity/getToken?login={settings.UserName}&password={settings.UserPassword}").Data.AccessToken;
+            RefreshToken();
             TaskDictionary = Get<AppConfig>(_token, $"{AppUrl}/api/configuration")
                 .Views
                 .Single(x=>x.ViewName == _viewName)
                 .DictionaryStrictName;
             _baseUrl = $"{AppUrl}/api/{TaskDictionary}";
         }
+
+        public void RefreshToken()
+        {
+            Console.WriteLine($"{AppUrl}/api/identity/getToken?login={settings.UserName}&password={settings.UserPassword}");
+            _token = Get<GetTokenModelResult>($"{AppUrl}/api/identity/getToken?login={settings.UserName}&password={settings.UserPassword}").Data.AccessToken;
+            LastTokenRefresh = DateTime.Now;
+        }
+
         public static T Get<T>(string url)
         {
             var result = new HttpClient()
@@ -48,6 +59,7 @@ namespace LocalManipulator.Helpers
             }
             return deserialize;
         }
+
         public static T Get<T>(string token, string url)
         {
             //Console.WriteLine($"{DateTime.UtcNow}: {url}");
@@ -114,6 +126,8 @@ namespace LocalManipulator.Helpers
 
         public IEnumerable<TaskForRobot> GetTasks()
         {
+            if((DateTime.Now - LastTokenRefresh) > new TimeSpan(10,0,0))
+                RefreshToken();
             var tasks = Get<GetItemsOf<TaskForRobot>>(_token, $"{_baseUrl}/getListForView/{_viewName}/0/30");
             return tasks.Rows;
         }
