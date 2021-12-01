@@ -27,19 +27,22 @@ namespace LocalManipulator.Helpers
                 StartInfo = new ProcessStartInfo(PythonLocation, fileName)
                 {
                     RedirectStandardOutput = true, 
+                    RedirectStandardError = true, 
                     UseShellExecute = false, 
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
                 }
             };
             p.Start();
             
             p.WaitForExit();
             string output = p.StandardOutput.ReadToEnd();
+            string err = p.StandardError.ReadToEnd();
 
             Console.WriteLine($"{DateTime.UtcNow} [code]: {code}");
             Console.WriteLine($"{DateTime.UtcNow} [output]: {output}");
+            Console.WriteLine($"{DateTime.UtcNow} [err]: {err}");
             
-            return output;
+            return output + err;
         }
     }
 }
