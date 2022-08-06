@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using LocalManipulator.Models;
 
 namespace LocalManipulator.Helpers
@@ -29,11 +30,35 @@ namespace LocalManipulator.Helpers
             AppUrl = settings.TasksUrl.Replace(uri.AbsolutePath, "");
             _viewName  = uri.PathAndQuery.Split("/getListForView/")[1];
 
-            RefreshToken();
-            TaskDictionary = Get<AppConfig>(_token, $"{AppUrl}/api/configuration")
-                .Views
-                .Single(x=>x.ViewName == _viewName)
-                .DictionaryStrictName;
+            var tokenIsReceive = false;
+            var attemptCount = 0;
+            while (!tokenIsReceive)
+            {
+                try
+                {
+                    attemptCount++;
+                    RefreshToken();
+                    TaskDictionary = Get<AppConfig>(_token, $"{AppUrl}/api/configuration")
+                        .Views
+                        .Single(x=>x.ViewName == _viewName)
+                        .DictionaryStrictName;
+                    tokenIsReceive = true;
+                    break;
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    var delay = 10000;
+                    
+                    if (attemptCount > 10)
+                        delay = 30000;
+                    
+                    if (attemptCount > 20)
+                        delay = 90000;
+                    
+                    Thread.Sleep(delay);
+                }
+            }
             _baseUrl = $"{AppUrl}/api/{TaskDictionary}";
         }
 
@@ -75,7 +100,7 @@ namespace LocalManipulator.Helpers
                 // Read the content.
                 string responseFromServer = reader.ReadToEnd();
                 // Display the content.
-                Console.WriteLine($"{DateTime.UtcNow} {responseFromServer}");
+                //Console.WriteLine($"{DateTime.UtcNow} {responseFromServer}");
                 var deserialize = JsonSerializer.Deserialize<T>(responseFromServer, new JsonSerializerOptions(JsonSerializerDefaults.Web));
                 return deserialize;
             }
