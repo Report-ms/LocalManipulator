@@ -1,5 +1,11 @@
-FROM mcr.microsoft.com/dotnet/aspnet:3.1
-COPY . .
-ENV TZ="Europe/Moscow"
-WORKDIR /
-ENTRYPOINT ["dotnet", "run"]
+# Stage 1
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1 AS build
+WORKDIR /build
+COPY ./LocalManipulator .
+RUN dotnet restore
+RUN dotnet publish -c Release -o /app
+# Stage 2
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS final
+WORKDIR /app
+COPY --from=build /app .
+ENTRYPOINT ["dotnet", "Back.dll"]
