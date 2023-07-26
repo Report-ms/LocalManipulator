@@ -1,5 +1,5 @@
 # Stage 1
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS localmanipulatorstage1
 
 RUN apt-get update \
     && apt-get install -y python3 \
@@ -14,7 +14,7 @@ COPY ./LocalManipulator .
 RUN dotnet restore
 RUN dotnet publish -c Release -o /app
 # Stage 2
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS final
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS localmanipulatorstage2
 WORKDIR /app
-COPY --from=build /app .
+COPY --from=localmanipulatorstage1 /app .
 ENTRYPOINT ["dotnet", "Back.dll"]
