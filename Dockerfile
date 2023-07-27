@@ -17,4 +17,4 @@ RUN dotnet publish -c Release -o /app
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS localmanipulatorstage2
 WORKDIR /app
 COPY --from=localmanipulatorstage1 /app .
-ENTRYPOINT ["dotnet", "Back.dll"]
+ENTRYPOINT ["dotnet", "LocalManipulator.dll"]
