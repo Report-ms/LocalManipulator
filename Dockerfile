@@ -6,7 +6,8 @@ RUN apt-get update \
     && apt-get install -y p7zip-full
 
 RUN pip3 install --upgrade pip \
-    && pip3 install requests
+    && pip3 install requests \
+    && pip3 install paramiko
 
 WORKDIR /LocalManipulator
 COPY ./LocalManipulator .
