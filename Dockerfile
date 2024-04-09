@@ -14,7 +14,8 @@ RUN pip3 install --upgrade pip \
     && pip3 install python-docx \
     && pip3 install edge-tts \
     && pip3 install pydub \
-    && pip3 install opencv-python
+    && pip3 install opencv-python \
+    && pip3 install Pillow \
 
 WORKDIR /LocalManipulator
 COPY ./LocalManipulator .
