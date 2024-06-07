@@ -140,11 +140,11 @@ namespace LocalManipulator.Helpers
         {
         }
 
-        public void SaveResult(TaskForRobot task, string result)
+        public void SaveResult(TaskForRobot task, RunCodeResult result)
         {
             var actualTask = Get<TaskForRobot>(_token, $"{_baseUrl}/getById/{task.Id}");
-            actualTask.Result = (actualTask.Result ?? "") +  result;
-            actualTask.State = "FinishedWithSuccess";
+            actualTask.Result = (actualTask.Result ?? "") +  result.Output + result.Err;
+            actualTask.State = "FinishedWith" + (string.IsNullOrEmpty(result.Err) ? "Success" : "Error");
             
             Post(_token, $"{_baseUrl}/createOrUpdate", actualTask);
         }

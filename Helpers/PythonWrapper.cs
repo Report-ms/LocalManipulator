@@ -15,7 +15,7 @@ namespace LocalManipulator.Helpers
             TempFolder = settings.TempFolder;
         }
 
-        public string Run(string code)
+        public RunCodeResult Run(string code)
         {
             var fileName = $"{TempFolder}/{Guid.NewGuid()}.py";
             var streamWriter = File.CreateText(fileName);
@@ -42,7 +42,7 @@ namespace LocalManipulator.Helpers
             Console.WriteLine($"{DateTime.UtcNow} [output]: {output}");
             Console.WriteLine($"{DateTime.UtcNow} [err]: {err}");
             
-            return output + err;
+            return new RunCodeResult(output, err);
         }
     }
 }
